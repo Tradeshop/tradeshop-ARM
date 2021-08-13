@@ -49,16 +49,18 @@ public class ARMRestoreRegionEventListener implements Listener {
         this.tradeShopARM = tradeShopARM;
     }
 
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onRegionRestore(RestoreRegionEvent event) {
-        DataStorage dataStorage = tradeShop.getDataStorage();
-        Region region = event.getRegion();
-        World world = region.getRegionworld();
+        if(!event.isCancelled()) {
+            DataStorage dataStorage = tradeShop.getDataStorage();
+            Region region = event.getRegion();
+            World world = region.getRegionworld();
 
-        for(Vector point : region.getRegion().getPoints()) {
-            Shop shop = dataStorage.loadShopFromSign(new ShopLocation(world, point.getBlockX(), point.getBlockY(), point.getBlockZ()));
-            if(shop != null)
-                shop.remove();
+            for (Vector point : region.getRegion().getPoints()) {
+                Shop shop = dataStorage.loadShopFromSign(new ShopLocation(world, point.getBlockX(), point.getBlockY(), point.getBlockZ()));
+                if (shop != null)
+                    shop.remove();
+            }
         }
     }
 }
