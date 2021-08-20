@@ -25,30 +25,64 @@
 
 package org.shanerx.tradeshoparm.enumys;
 
+import com.google.common.base.Charsets;
+import com.google.common.collect.Sets;
+import com.google.common.io.Files;
+import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.shanerx.tradeshoparm.TradeShopARM;
+import org.yaml.snakeyaml.Yaml;
+import org.shanerx.tradeshop.enumys.SettingSectionKeys;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 
 public enum Setting {
 
-    ALLOW_METRICS("allow-metrics"),
-    ENABLE_DEBUG("enable-debug");
+    CONFIG_VERSION(SettingSectionKeys.NONE, "config-version", 1.0, "", "\n"),
 
-    private static TradeShopARM plugin = (TradeShopARM) Bukkit.getPluginManager().getPlugin("TradeShopARM");
+    ENABLE_DEBUG(SettingSectionKeys.SYSTEM_OPTIONS, "enable-debug", 0, "What debug code should be run. this will add significant amounts of spam to the console/log, generally not used unless requested by Devs (must be a whole number)"),
+    CHECK_UPDATES(SettingSectionKeys.SYSTEM_OPTIONS, "check-updates", true, "Should we check for updates when the server starts"),
+    ALLOW_METRICS(SettingSectionKeys.SYSTEM_OPTIONS, "allow-metrics", true, "Allow us to connect anonymous metrics so we can see how our plugin is being used to better develop it");
+
+
+    private static TradeShopARM plugin = (TradeShopARM) Bukkit.getPluginManager().getPlugin("TradeShop-ARM");
     private static File file = new File(plugin.getDataFolder(), "config.yml");
     private static FileConfiguration config = YamlConfiguration.loadConfiguration(file);
-    String path;
+    private final String key;
+    private final String path;
+    private final Object defaultValue;
+    private final SettingSectionKeys sectionKey;
+    private String preComment = "";
+    private String postComment = "";
 
-    Setting(String path) {
-        this.path = path;
+    Setting(SettingSectionKeys sectionKey, String path, Object defaultValue) {
+        this.sectionKey = sectionKey;
+        this.key = path;
+        this.path = sectionKey.getKey() + path;
+        this.defaultValue = defaultValue;
     }
 
+    Setting(SettingSectionKeys sectionKey, String path, Object defaultValue, String preComment) {
+        this.sectionKey = sectionKey;
+        this.key = path;
+        this.path = sectionKey.getKey() + path;
+        this.defaultValue = defaultValue;
+        this.preComment = preComment;
+    }
+
+    Setting(SettingSectionKeys sectionKey, String path, Object defaultValue, String preComment, String postComment) {
+        this.sectionKey = sectionKey;
+        this.key = path;
+        this.path = sectionKey.getKey() + path;
+        this.defaultValue = defaultValue;
+        this.preComment = preComment;
+        this.postComment = postComment;
+    }
     public static Setting findSetting(String search) {
         return valueOf(search.toUpperCase().replace("-", "_"));
     }
@@ -56,8 +90,9 @@ public enum Setting {
     private static void setDefaults() {
         config = YamlConfiguration.loadConfiguration(file);
 
-        addSetting(ALLOW_METRICS.path, true);
-        addSetting(ENABLE_DEBUG.path, false);
+        for (Setting set : Setting.values()) {
+            addSetting(set.path, set.defaultValue);
+        }
 
         save();
     }
@@ -69,9 +104,43 @@ public enum Setting {
     }
 
     private static void save() {
+        Validate.notNull(file, "File cannot be null");
+
         if (config != null)
             try {
-                config.save(file);
+                Files.createParentDirs(file);
+
+                StringBuilder data = new StringBuilder();
+
+                data.append("##########################\n").append("#    TradeShopARM Config    #\n").append("##########################\n");
+                Set<SettingSectionKeys> settingSectionKeys = Sets.newHashSet(SettingSectionKeys.values());
+
+                for (Setting setting : values()) {
+                    if (settingSectionKeys.contains(setting.sectionKey)) {
+                        data.append(setting.sectionKey.getFormattedHeader());
+                        settingSectionKeys.remove(setting.sectionKey);
+                    }
+
+                    if (!setting.preComment.isEmpty()) {
+                        data.append(setting.sectionKey.getValueLead()).append("# ").append(setting.preComment).append("\n");
+                    }
+
+                    data.append(setting.sectionKey.getValueLead()).append(setting.key).append(": ").append(new Yaml().dump(setting.getSetting()));
+
+                    if (!setting.postComment.isEmpty()) {
+                        data.append(setting.postComment).append("\n");
+                    }
+                }
+
+                Writer writer = new OutputStreamWriter(new FileOutputStream(file), Charsets.UTF_8);
+
+                try {
+                    writer.write(data.toString());
+                } finally {
+                    writer.close();
+                }
+
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -90,8 +159,20 @@ public enum Setting {
             plugin.getServer().getPluginManager().disablePlugin(plugin);
         }
 
+        fixUp();
+
         setDefaults();
         config = YamlConfiguration.loadConfiguration(file);
+    }
+
+    // Method to fix any values that have changed with updates
+    private static void fixUp() {
+        boolean changes = false;
+
+        //Add config fixes here...
+        
+        if (changes)
+            save();
     }
 
     public static FileConfiguration getConfig() {
@@ -100,6 +181,14 @@ public enum Setting {
 
     public String toPath() {
         return path;
+    }
+
+    public void setSetting(Object obj) {
+        config.set(toPath(), obj);
+    }
+
+    public void clearSetting() {
+        config.set(toPath(), null);
     }
 
     public Object getSetting() {

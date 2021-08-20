@@ -42,8 +42,8 @@ import net.alex9849.arm.events.RestoreRegionEvent;
 
 public class ARMRestoreRegionEventListener implements Listener {
 
-    private TradeShopARM tradeShopARM;
-    private TradeShop tradeShop = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");;
+    private final TradeShop tradeShop = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
+    private final TradeShopARM tradeShopARM;
 
     public ARMRestoreRegionEventListener(TradeShopARM tradeShopARM) {
         this.tradeShopARM = tradeShopARM;

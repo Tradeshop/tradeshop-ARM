@@ -6,5 +6,5 @@ load: POSTWORLD
 depend: [TradeShop, AdvancedRegionMarket]
 
 authors: [Lori00, KillerOfPie]
-description: A new powerful trading plugin.
-website: https://www.tradeshop.github.io
+description: ${project.description}
+website: ${project.url}

@@ -28,27 +28,39 @@ package org.shanerx.tradeshoparm;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.shanerx.tradeshop.utils.Updater;
 import org.shanerx.tradeshoparm.enumys.Setting;
 import org.shanerx.tradeshoparm.listeners.*;
 
 public class TradeShopARM extends JavaPlugin {
 
+	private final int bStatsPluginID = 12515;
 	private Metrics metrics;
 
 	@Override
 	public void onEnable() {
 
+		Setting.reload();
+
 		PluginManager pm = getServer().getPluginManager();
 
         pm.registerEvents(new ARMRestoreRegionEventListener(this), this);
 
+		if (Setting.CHECK_UPDATES.getBoolean()) {
+			new Thread(() -> getUpdater().checkCurrentVersion()).start();
+		}
+
 		if (Setting.ALLOW_METRICS.getBoolean()) {
-			metrics = new Metrics(this);
+			metrics = new Metrics(this, bStatsPluginID);
 			getLogger().info("Metrics successfully initialized!");
 
 		} else {
 			getLogger().warning("Metrics are disabled! Please consider enabling them to support the authors!");
 		}
 
+	}
+
+	public Updater getUpdater() {
+		return new Updater(getDescription(), "https://raw.githubusercontent.com/Tradeshop/tradeshop-ARM/master/version.txt", "https://github.com/Tradeshop/tradeshop-ARM/releases");
 	}
 }
