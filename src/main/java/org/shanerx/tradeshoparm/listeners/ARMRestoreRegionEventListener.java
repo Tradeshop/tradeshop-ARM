@@ -57,9 +57,11 @@ public class ARMRestoreRegionEventListener implements Listener {
             World world = region.getRegionworld();
 
             for (Vector point : region.getRegion().getPoints()) {
-                Shop shop = dataStorage.loadShopFromSign(new ShopLocation(world, point.getBlockX(), point.getBlockY(), point.getBlockZ()));
+                ShopLocation sl = new ShopLocation(world, point.getBlockX(), point.getBlockY(), point.getBlockZ());
+                Shop shop = dataStorage.loadShopFromSign(sl);
                 if (shop != null)
                     shop.remove();
+                dataStorage.removeChestLinkage(sl);
             }
         }
     }
