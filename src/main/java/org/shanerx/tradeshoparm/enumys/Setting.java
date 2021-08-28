@@ -45,6 +45,10 @@ public enum Setting {
 
     CONFIG_VERSION(SettingSectionKeys.NONE, "config-version", 1.0, "", "\n"),
 
+    // Language Options
+    MESSAGE_PREFIX(SettingSectionKeys.LANGUAGE_OPTIONS, "message-prefix", "&a[&eTradeShop-ARM&a] ", "The prefix the displays before all plugin messages", "\n"),
+
+    // System Options
     ENABLE_DEBUG(SettingSectionKeys.SYSTEM_OPTIONS, "enable-debug", 0, "What debug code should be run. this will add significant amounts of spam to the console/log, generally not used unless requested by Devs (must be a whole number)"),
     CHECK_UPDATES(SettingSectionKeys.SYSTEM_OPTIONS, "check-updates", true, "Should we check for updates when the server starts"),
     ALLOW_METRICS(SettingSectionKeys.SYSTEM_OPTIONS, "allow-metrics", true, "Allow us to connect anonymous metrics so we can see how our plugin is being used to better develop it");

@@ -45,6 +45,7 @@ public class TradeShopARM extends JavaPlugin {
 		PluginManager pm = getServer().getPluginManager();
 
         pm.registerEvents(new ARMRestoreRegionEventListener(this), this);
+		pm.registerEvents(new TradeShopReloadEventListener(), this);
 
 		if (Setting.CHECK_UPDATES.getBoolean()) {
 			new Thread(() -> getUpdater().checkCurrentVersion()).start();
