@@ -1,11 +1,11 @@
 # TradeShop-ARM
 
 ## Description
-Add-On plugin for Tradeshop that adds support for Advanced Region Management
+Add-On plugin for TradeShop that adds support for Advanced Region Management
 
 >**Authors:** Lori00 / ShanerX & KillerOfPie<br/>
 >**Name:** TradeShop-ARM<br/>
->**Version:** v0.0.2-DEV<br/>
+>**Version:** v0.0.4-DEV<br/>
 >**Tested MC versions:** 1.17.1<br/>
 >Should also work on earlier versions that are supported by TradeShop and ARM <br/>
 

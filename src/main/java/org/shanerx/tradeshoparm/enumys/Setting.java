@@ -34,7 +34,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.shanerx.tradeshoparm.TradeShopARM;
 import org.yaml.snakeyaml.Yaml;
-import org.shanerx.tradeshop.enumys.SettingSectionKeys;
+import org.shanerx.tradeshop.utils.config.SettingSection;
 
 import java.io.*;
 import java.util.List;
@@ -43,15 +43,15 @@ import java.util.logging.Level;
 
 public enum Setting {
 
-    CONFIG_VERSION(SettingSectionKeys.NONE, "config-version", 1.0, "", "\n"),
+    CONFIG_VERSION(SettingSection.NONE, "config-version", 1.0, "", "\n"),
 
     // Language Options
-    MESSAGE_PREFIX(SettingSectionKeys.LANGUAGE_OPTIONS, "message-prefix", "&a[&eTradeShop-ARM&a] ", "The prefix the displays before all plugin messages", "\n"),
+    MESSAGE_PREFIX(SettingSection.LANGUAGE_OPTIONS, "message-prefix", "&a[&eTradeShop-ARM&a] ", "The prefix the displays before all plugin messages", "\n"),
 
     // System Options
-    ENABLE_DEBUG(SettingSectionKeys.SYSTEM_OPTIONS, "enable-debug", 0, "What debug code should be run. this will add significant amounts of spam to the console/log, generally not used unless requested by Devs (must be a whole number)"),
-    CHECK_UPDATES(SettingSectionKeys.SYSTEM_OPTIONS, "check-updates", true, "Should we check for updates when the server starts"),
-    ALLOW_METRICS(SettingSectionKeys.SYSTEM_OPTIONS, "allow-metrics", true, "Allow us to connect anonymous metrics so we can see how our plugin is being used to better develop it");
+    ENABLE_DEBUG(SettingSection.SYSTEM_OPTIONS, "enable-debug", 0, "What debug code should be run. this will add significant amounts of spam to the console/log, generally not used unless requested by Devs (must be a whole number)"),
+    CHECK_UPDATES(SettingSection.SYSTEM_OPTIONS, "check-updates", true, "Should we check for updates when the server starts"),
+    ALLOW_METRICS(SettingSection.SYSTEM_OPTIONS, "allow-metrics", true, "Allow us to connect anonymous metrics so we can see how our plugin is being used to better develop it");
 
 
     private static TradeShopARM plugin = (TradeShopARM) Bukkit.getPluginManager().getPlugin("TradeShop-ARM");
@@ -60,18 +60,18 @@ public enum Setting {
     private final String key;
     private final String path;
     private final Object defaultValue;
-    private final SettingSectionKeys sectionKey;
+    private final SettingSection sectionKey;
     private String preComment = "";
     private String postComment = "";
 
-    Setting(SettingSectionKeys sectionKey, String path, Object defaultValue) {
+    Setting(SettingSection sectionKey, String path, Object defaultValue) {
         this.sectionKey = sectionKey;
         this.key = path;
         this.path = sectionKey.getKey() + path;
         this.defaultValue = defaultValue;
     }
 
-    Setting(SettingSectionKeys sectionKey, String path, Object defaultValue, String preComment) {
+    Setting(SettingSection sectionKey, String path, Object defaultValue, String preComment) {
         this.sectionKey = sectionKey;
         this.key = path;
         this.path = sectionKey.getKey() + path;
@@ -79,7 +79,7 @@ public enum Setting {
         this.preComment = preComment;
     }
 
-    Setting(SettingSectionKeys sectionKey, String path, Object defaultValue, String preComment, String postComment) {
+    Setting(SettingSection sectionKey, String path, Object defaultValue, String preComment, String postComment) {
         this.sectionKey = sectionKey;
         this.key = path;
         this.path = sectionKey.getKey() + path;
@@ -117,19 +117,19 @@ public enum Setting {
                 StringBuilder data = new StringBuilder();
 
                 data.append("##########################\n").append("#    TradeShopARM Config    #\n").append("##########################\n");
-                Set<SettingSectionKeys> settingSectionKeys = Sets.newHashSet(SettingSectionKeys.values());
+                Set<SettingSection> settingSectionKeys = Sets.newHashSet(SettingSection.values());
 
                 for (Setting setting : values()) {
                     if (settingSectionKeys.contains(setting.sectionKey)) {
-                        data.append(setting.sectionKey.getFormattedHeader());
+                        data.append(setting.sectionKey.getSectionHeader());
                         settingSectionKeys.remove(setting.sectionKey);
                     }
 
                     if (!setting.preComment.isEmpty()) {
-                        data.append(setting.sectionKey.getValueLead()).append("# ").append(setting.preComment).append("\n");
+                        data.append(setting.sectionKey.getLineLead()).append("# ").append(setting.preComment).append("\n");
                     }
 
-                    data.append(setting.sectionKey.getValueLead()).append(setting.key).append(": ").append(new Yaml().dump(setting.getSetting()));
+                    data.append(setting.sectionKey.getLineLead()).append(setting.key).append(": ").append(new Yaml().dump(setting.getSetting()));
 
                     if (!setting.postComment.isEmpty()) {
                         data.append(setting.postComment).append("\n");
