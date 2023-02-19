@@ -33,9 +33,9 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.util.Vector;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.objects.Shop;
-import org.shanerx.tradeshop.objects.ShopLocation;
-import org.shanerx.tradeshop.utils.data.DataStorage;
+import org.shanerx.tradeshop.data.storage.DataStorage;
+import org.shanerx.tradeshop.shop.Shop;
+import org.shanerx.tradeshop.shoplocation.ShopLocation;
 import org.shanerx.tradeshoparm.TradeShopARM;
 import net.alex9849.arm.events.RestoreRegionEvent;
 

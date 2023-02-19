@@ -28,7 +28,8 @@ package org.shanerx.tradeshoparm;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.shanerx.tradeshop.utils.Updater;
+import org.shanerx.tradeshop.utils.versionmanagement.Expirer;
+import org.shanerx.tradeshop.utils.versionmanagement.Updater;
 import org.shanerx.tradeshoparm.enumys.Setting;
 import org.shanerx.tradeshoparm.listeners.*;
 
@@ -37,8 +38,13 @@ public class TradeShopARM extends JavaPlugin {
 	private final int bStatsPluginID = 12515;
 	private Metrics metrics;
 
+	private Expirer expirer = new Expirer(this);
+
 	@Override
 	public void onEnable() {
+		if (!expirer.initiateDevExpiration()) {
+			expirer = null;
+		}
 
 		Setting.reload();
 

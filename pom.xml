@@ -31,7 +31,8 @@
 
     <groupId>org.shanerx</groupId>
     <artifactId>tradeshop-arm</artifactId>
-    <version>0.0.4-DEV</version>
+    <version>0.0.5-STABLE</version>
+    <packaging>jar</packaging>
     <name>TradeShop-ARM</name>
     <url>https://tradeshop.github.io/</url>
     <description>Add-On plugin for Tradeshop that adds support for Advanced Region Management</description>
@@ -39,19 +40,71 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH.mm.ss</maven.build.timestamp.format>
+        <timeStamp>${maven.build.timestamp}</timeStamp>
+        <pluginDir>org/shanerx/tradeshoparm</pluginDir>
+        <resourceDir>src/main/resources</resourceDir>
+
+        <!-- Profile variables  -->
+        <expirationFile/> <!-- default value for non-DEV build -->
+        <doClean/> <!-- default value for dirty build -->
+        <commit/> <!-- default value for excluding commit -->
+        <branch/> <!-- default value for excluding commit -->
+        <fileTimeStamp/> <!-- default value for excluding commit -->
+
+        <!-- Changeable variables  -->
+        <outputDir>target/output-files</outputDir> <!-- Set to relative directory output of PreShade and JavaDoc files  -->
     </properties>
 
+    <profiles>
+        <profile>
+            <id>expiration</id> <!-- additional profile for DEV build -->
+            <properties>
+                <expirationFile>builddate.yml</expirationFile>
+            </properties>
+        </profile>
+        <profile>
+            <id>clean</id> <!-- additional profile for a Clean build -->
+            <properties>
+                <doClean>clean</doClean>
+            </properties>
+        </profile>
+        <profile>
+            <id>includeTimeStamp</id> <!-- additional profile for a timestamped build -->
+            <properties>
+                <fileTimeStamp>-${timeStamp}</fileTimeStamp>
+            </properties>
+        </profile>
+        <profile>
+            <id>includeCommit</id> <!-- additional profile for a non-commit named build -->
+            <properties>
+                <!--suppress UnresolvedMavenProperty -->
+                <commit>-${commit_num}
+                </commit> <!-- `-Dcommit_num=###` is required for the commit number to appear in the file name -->
+            </properties>
+        </profile>
+        <profile>
+            <id>includeBranch</id> <!-- additional profile for a non-commit named build -->
+            <properties>
+                <!--suppress UnresolvedMavenProperty -->
+                <branch>-${branch_name}
+                </branch> <!-- `-Dbranch_name=###` is required for the branch name to appear in the file name -->
+            </properties>
+        </profile>
+    </profiles>
+
     <build>
-        <defaultGoal>install</defaultGoal>
-        <finalName>${project.artifactId}-${project.version}-${maven.build.timestamp}</finalName>
+        <defaultGoal>${doClean} install</defaultGoal>
+        <finalName>${project.name}-${project.version}${branch}${commit}${fileTimeStamp}</finalName>
+
         <sourceDirectory>src/main/java</sourceDirectory>
         <resources>
             <resource>
                 <targetPath>.</targetPath>
                 <filtering>true</filtering>
-                <directory>${basedir}/src/main/resources/</directory>
+                <directory>${basedir}/${resourceDir}</directory>
                 <includes>
                     <include>plugin.yml</include>
+                    <include>${expirationFile}</include>
                 </includes>
             </resource>
         </resources>
@@ -60,7 +113,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.0</version>
+                <version>3.8.1</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
@@ -69,20 +122,34 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>3.3.0</version>
                 <configuration>
+                    <outputDirectory>${outputDir}/PreShade</outputDirectory>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
                     <artifactSet>
                         <includes>
                             <include>org.bstats:*</include>
+                            <include>de.themoep:*</include>
                         </includes>
                     </artifactSet>
                     <relocations>
                         <relocation>
                             <pattern>org.bstats</pattern>
-                            <shadedPattern>org.shanerx.tradeshoparm</shadedPattern>
+                            <shadedPattern>${project.groupId}.${project.artifactId}.bstats</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>de.themoep</pattern>
+                            <shadedPattern>${project.groupId}.${project.artifactId}</shadedPattern>
                         </relocation>
                     </relocations>
+                    <filters>
+                        <filter>
+                            <artifact>*:*</artifact>
+                            <excludes>
+                                <exclude>META-INF/maven/**</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
                 </configuration>
                 <executions>
                     <execution>
@@ -94,11 +161,14 @@
                 </executions>
             </plugin>
         </plugins>
-
-
     </build>
 
     <repositories>
+        <repository>
+            <id>tradeshop-artifactory</id>
+            <url>https://repo.killerofpie.com/artifactory/TradeShop</url>
+        </repository>
+
         <repository>
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
@@ -119,7 +189,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.15.2-R0.1-SNAPSHOT</version>
+            <version>1.19.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 
@@ -131,15 +201,30 @@
         </dependency>
 
         <dependency>
-            <groupId>com.github.Tradeshop</groupId>
+            <groupId>org.shanerx</groupId>
             <artifactId>Tradeshop</artifactId>
-            <version>master-baeda89b74-1</version>
+            <version>2.6.0-STABLE</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>com.github.alex9849</groupId>
             <artifactId>advanced-region-market</artifactId>
             <version>3.3.2</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
+
+    <distributionManagement>
+        <repository>
+            <id>central</id>
+            <name>KOP-Artifactory-releases</name>
+            <url>https://repo.killerofpie.com/artifactory/${name}</url>
+        </repository>
+        <snapshotRepository>
+            <id>snapshots</id>
+            <name>KOP-Artifactory-snapshots</name>
+            <url>https://repo.killerofpie.com/artifactory/${name}</url>
+        </snapshotRepository>
+    </distributionManagement>
 </project>

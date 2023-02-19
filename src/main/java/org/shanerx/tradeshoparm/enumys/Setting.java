@@ -32,9 +32,9 @@ import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.shanerx.tradeshop.data.config.SettingSection;
 import org.shanerx.tradeshoparm.TradeShopARM;
 import org.yaml.snakeyaml.Yaml;
-import org.shanerx.tradeshop.utils.config.SettingSection;
 
 import java.io.*;
 import java.util.List;
