@@ -36,18 +36,14 @@ import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.data.storage.DataStorage;
 import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shoplocation.ShopLocation;
-import org.shanerx.tradeshoparm.TradeShopARM;
 import net.alex9849.arm.events.RestoreRegionEvent;
 
 
 public class ARMRestoreRegionEventListener implements Listener {
 
-    private final TradeShop tradeShop = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
-    private final TradeShopARM tradeShopARM;
+    private final TradeShop tradeShop = TradeShop.getPlugin();
 
-    public ARMRestoreRegionEventListener(TradeShopARM tradeShopARM) {
-        this.tradeShopARM = tradeShopARM;
-    }
+    public ARMRestoreRegionEventListener() { }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onRegionRestore(RestoreRegionEvent event) {
@@ -57,11 +53,9 @@ public class ARMRestoreRegionEventListener implements Listener {
             World world = region.getRegionworld();
 
             for (Vector point : region.getRegion().getPoints()) {
-                ShopLocation sl = new ShopLocation(world, point.getBlockX(), point.getBlockY(), point.getBlockZ());
-                Shop shop = dataStorage.loadShopFromSign(sl);
+                Shop shop = dataStorage.loadShopFromSign(new ShopLocation(world, point.getBlockX(), point.getBlockY(), point.getBlockZ()));
                 if (shop != null)
                     shop.remove();
-                dataStorage.removeChestLinkage(sl);
             }
         }
     }
